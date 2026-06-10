@@ -135,3 +135,14 @@ alter publication supabase_realtime add table messages;
 -- ============================================================
 -- Done! Phase 3 (photos, location filtering) would go here.
 -- ============================================================
+create policy "Cualquiera puede ver avatares"
+  on storage.objects for select
+  using (bucket_id = 'avatars');
+
+create policy "Usuarios suben su propio avatar"
+  on storage.objects for insert
+  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Usuarios actualizan su propio avatar"
+  on storage.objects for update
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);

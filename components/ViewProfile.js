@@ -1,13 +1,13 @@
 "use client";
-
+ 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { initials } from "@/lib/helpers";
+import Avatar from "@/components/Avatar";
 import RatingForm from "@/components/RatingForm";
-
+ 
 export default function ViewProfile({ profile, currentUser, onBack, onMessage }) {
   const [ratings, setRatings] = useState([]);
-
+ 
   const loadRatings = useCallback(async () => {
     if (!profile) return;
     const { data, error } = await supabase
@@ -17,36 +17,36 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
       .order("created_at", { ascending: false });
     if (!error) setRatings(data || []);
   }, [profile]);
-
+ 
   useEffect(() => {
     loadRatings();
   }, [loadRatings]);
-
+ 
   if (!profile) return null;
-
+ 
   const count = ratings.length;
   const average = count
     ? (ratings.reduce((sum, r) => sum + r.score, 0) / count).toFixed(1)
     : null;
-
+ 
   // The current user's own rating of this person (if any).
   const myRating = currentUser
     ? ratings.find((r) => r.reviewer_id === currentUser.id)
     : null;
-
+ 
   const isOwnProfile = currentUser && currentUser.id === profile.id;
   const reviewsWithComment = ratings.filter((r) => r.comment && r.comment.trim());
-
+ 
   function stars(score) {
     return "★★★★★".slice(0, score) + "☆☆☆☆☆".slice(0, 5 - score);
   }
-
+ 
   return (
     <section>
       <button className="btn btn-ghost" onClick={onBack}>← Volver al tablero</button>
       <div className="view-profile-card">
         <div className="view-head">
-          <div className="avatar">{initials(profile.name)}</div>
+          <Avatar name={profile.name} photoUrl={profile.photo_url} />
           <div>
             <div className="view-name">{profile.name}</div>
             {profile.location && <div className="view-location">{profile.location}</div>}
@@ -58,16 +58,16 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
             )}
           </div>
         </div>
-
+ 
         {/* Message button — only when logged in and not your own profile */}
         {currentUser && !isOwnProfile && (
           <button className="btn btn-primary" onClick={() => onMessage(profile.id)}>
             Enviar mensaje
           </button>
         )}
-
+ 
         {profile.bio && <p className="view-bio">&ldquo;{profile.bio}&rdquo;</p>}
-
+ 
         {(profile.skills || []).length === 0 ? (
           <p className="view-location">Sin habilidades listadas aún.</p>
         ) : (
@@ -79,7 +79,7 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
             </div>
           ))
         )}
-
+ 
         {/* Rating form — only when logged in and not your own profile */}
         {currentUser && !isOwnProfile && (
           <RatingForm
@@ -89,7 +89,7 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
             onSaved={loadRatings}
           />
         )}
-
+ 
         {/* Reviews list */}
         {reviewsWithComment.length > 0 && (
           <div className="reviews">
@@ -106,3 +106,4 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
     </section>
   );
 }
+ 

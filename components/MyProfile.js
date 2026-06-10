@@ -1,25 +1,29 @@
 "use client";
-
-import { useState, useEffect } from "react";
+ 
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
-
+import Avatar from "@/components/Avatar";
+ 
 export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
   const [name, setName] = useState(currentUser.name || "");
   const [location, setLocation] = useState(currentUser.location || "");
   const [bio, setBio] = useState(currentUser.bio || "");
+  const [photoUrl, setPhotoUrl] = useState(currentUser.photo_url || "");
+  const [photoNote, setPhotoNote] = useState("");
+  const fileRef = useRef(null);
   const [profileNote, setProfileNote] = useState("");
-
+ 
   const [skills, setSkills] = useState([]);
   const [skillName, setSkillName] = useState("");
   const [skillExp, setSkillExp] = useState("");
   const [skillDesc, setSkillDesc] = useState("");
   const [skillNote, setSkillNote] = useState("");
-
+ 
   useEffect(() => {
     loadSkills();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+ 
   async function loadSkills() {
     const { data, error } = await supabase
       .from("skills")
@@ -28,7 +32,38 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
       .order("created_at", { ascending: true });
     if (!error) setSkills(data || []);
   }
-
+ 
+  async function uploadPhoto(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    setPhotoNote("Subiendo…");
+ 
+    // Save under the user's own folder so the storage policy allows it.
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = `${currentUser.id}/avatar.${ext}`;
+ 
+    const { error: upErr } = await supabase
+      .storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+    if (upErr) { setPhotoNote(upErr.message); return; }
+ 
+    // Build a public URL (with a cache-buster so the new image shows right away).
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    const publicUrl = `${data.publicUrl}?t=${Date.now()}`;
+ 
+    const { error: dbErr } = await supabase
+      .from("profiles")
+      .update({ photo_url: publicUrl })
+      .eq("id", currentUser.id);
+    if (dbErr) { setPhotoNote(dbErr.message); return; }
+ 
+    setPhotoUrl(publicUrl);
+    setCurrentUser({ ...currentUser, photo_url: publicUrl });
+    setPhotoNote("Foto actualizada ✓");
+    setTimeout(() => setPhotoNote(""), 2000);
+  }
+ 
   async function saveProfile() {
     const updates = { name: name.trim(), location: location.trim(), bio: bio.trim() };
     const { error } = await supabase.from("profiles").update(updates).eq("id", currentUser.id);
@@ -37,7 +72,7 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
     setProfileNote("Guardado ✓");
     setTimeout(() => setProfileNote(""), 2000);
   }
-
+ 
   async function addSkill() {
     if (!skillName.trim()) { setSkillNote("Ingresa el nombre de la habilidad."); return; }
     const { error } = await supabase.from("skills").insert({
@@ -52,21 +87,37 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
     setTimeout(() => setSkillNote(""), 2000);
     loadSkills();
   }
-
+ 
   async function removeSkill(id) {
     await supabase.from("skills").delete().eq("id", id);
     loadSkills();
   }
-
+ 
   return (
     <section>
       <div className="profile-head">
         <h2 className="section-title">Mi perfil</h2>
         <button className="btn btn-ghost" onClick={onBack}>← Volver al tablero</button>
       </div>
-
+ 
       <div className="profile-edit-card">
         <h3>Sobre ti</h3>
+        <div className="photo-row">
+          <Avatar name={name} photoUrl={photoUrl} className="avatar-lg" />
+          <div>
+            <button className="btn btn-ghost btn-small" onClick={() => fileRef.current && fileRef.current.click()}>
+              Cambiar foto
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={uploadPhoto}
+            />
+            <span className="save-note">{photoNote}</span>
+          </div>
+        </div>
         <div className="field-row">
           <div className="field">
             <label>Nombre</label>
@@ -84,7 +135,7 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
         <button className="btn btn-primary" onClick={saveProfile}>Guardar perfil</button>
         <span className="save-note">{profileNote}</span>
       </div>
-
+ 
       <div className="profile-edit-card">
         <h3>Mis habilidades</h3>
         <div className="my-skills-list">
@@ -103,7 +154,7 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
             ))
           )}
         </div>
-
+ 
         <div className="add-skill-box">
           <h4>Agregar una habilidad</h4>
           <div className="field-row">

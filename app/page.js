@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Header from "@/components/Header";
@@ -8,7 +8,7 @@ import Browse from "@/components/Browse";
 import MyProfile from "@/components/MyProfile";
 import ViewProfile from "@/components/ViewProfile";
 import Messages from "@/components/Messages";
-
+ 
 export default function Home() {
   // Which screen: "browse" | "auth" | "profile" | "viewProfile" | "messages"
   const [view, setView] = useState("browse");
@@ -19,16 +19,35 @@ export default function Home() {
   const [messagePartnerId, setMessagePartnerId] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-
-  // --- Load the directory (all profiles + their skills) ---
+ 
+  // --- Load the directory (all profiles + skills + rating averages) ---
   const loadDirectory = useCallback(async () => {
     const { data, error } = await supabase
       .from("profiles")
       .select("id, name, location, bio, photo_url, skills(id, skill_name, experience, description)")
       .order("created_at", { ascending: false });
-    if (!error) setProfiles(data || []);
+    if (error) return;
+ 
+    // Pull all ratings once, then compute average + count per person.
+    const { data: ratingRows } = await supabase.from("ratings").select("reviewee_id, score");
+    const byUser = {};
+    (ratingRows || []).forEach((r) => {
+      if (!byUser[r.reviewee_id]) byUser[r.reviewee_id] = { sum: 0, count: 0 };
+      byUser[r.reviewee_id].sum += r.score;
+      byUser[r.reviewee_id].count += 1;
+    });
+ 
+    const withRatings = (data || []).map((p) => {
+      const agg = byUser[p.id];
+      return {
+        ...p,
+        avgRating: agg ? agg.sum / agg.count : 0,
+        ratingCount: agg ? agg.count : 0,
+      };
+    });
+    setProfiles(withRatings);
   }, []);
-
+ 
   // --- Count unread messages for the badge ---
   const loadUnread = useCallback(async (userId) => {
     const id = userId || (currentUser && currentUser.id);
@@ -40,7 +59,7 @@ export default function Home() {
       .eq("is_read", false);
     setUnreadCount(count || 0);
   }, [currentUser]);
-
+ 
   // --- Figure out who (if anyone) is logged in ---
   const loadSession = useCallback(async () => {
     const { data } = await supabase.auth.getUser();
@@ -58,7 +77,7 @@ export default function Home() {
       setUnreadCount(0);
     }
   }, [loadUnread]);
-
+ 
   // --- On first load ---
   useEffect(() => {
     (async () => {
@@ -67,53 +86,53 @@ export default function Home() {
       setLoading(false);
     })();
   }, [loadSession, loadDirectory]);
-
+ 
   // --- Navigation handlers ---
   function goBrowse() {
     loadDirectory();
     setView("browse");
   }
-
+ 
   function openAuth(mode) {
     setAuthMode(mode);
     setView("auth");
   }
-
+ 
   async function handleLoggedIn() {
     await loadSession();
     goBrowse();
   }
-
+ 
   async function handleSignedUp() {
     await loadSession();
     setView("profile");
   }
-
+ 
   async function logout() {
     await supabase.auth.signOut();
     setCurrentUser(null);
     setUnreadCount(0);
     goBrowse();
   }
-
+ 
   function openMyProfile() {
     if (!currentUser) { openAuth("login"); return; }
     setView("profile");
   }
-
+ 
   function openViewProfile(id) {
     setViewingId(id);
     setView("viewProfile");
   }
-
+ 
   function openMessages(partnerId = null) {
     if (!currentUser) { openAuth("login"); return; }
     setMessagePartnerId(partnerId);
     setView("messages");
   }
-
+ 
   const viewingProfile = profiles.find((p) => p.id === viewingId);
-
+ 
   return (
     <>
       <Header
@@ -126,7 +145,7 @@ export default function Home() {
         onMessages={() => openMessages(null)}
         onLogout={logout}
       />
-
+ 
       <main className="container">
         {loading ? (
           <p className="empty-state">Cargando…</p>
@@ -162,10 +181,11 @@ export default function Home() {
           <Browse profiles={profiles} onOpenProfile={openViewProfile} />
         )}
       </main>
-
+ 
       <footer className="site-footer">
-        <p>SkillBoard — MVP Fase 2 · hecho con Next.js + Supabase</p>
+        <p> </p>
       </footer>
     </>
   );
 }
+ 
