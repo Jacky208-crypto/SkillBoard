@@ -1,0 +1,504 @@
+/* ============================================================
+   SkillBoard — styles
+   Aesthetic: warm editorial ledger. Paper background, ink text,
+   terracotta accent, Fraunces display serif. Not your average app.
+   ============================================================ */
+
+:root {
+  --paper: #f5f0e6;
+  --paper-2: #efe8da;
+  --ink: #2b2724;
+  --ink-soft: #6b635a;
+  --line: #ddd3c2;
+  --accent: #c0552e;       /* terracotta */
+  --accent-dark: #9c3f1e;
+  --accent-soft: #f0d8cc;
+  --gold: #b88a2e;
+  --ok: #4a7c4e;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(43, 39, 36, 0.06), 0 8px 24px rgba(43, 39, 36, 0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(192, 85, 46, 0.04), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(184, 138, 46, 0.05), transparent 40%);
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 18px;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Header ---------- */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(245, 240, 230, 0.8);
+  backdrop-filter: blur(6px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.brand-mark { color: var(--accent); font-size: 22px; }
+.brand-name {
+  font-family: "Fraunces", serif;
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+}
+
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.header-greeting { color: var(--ink-soft); font-size: 16px; }
+
+/* ---------- Layout ---------- */
+.container {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  flex: 1;
+}
+
+/* ---------- Hero ---------- */
+.hero { text-align: center; padding: 80px 0 60px; }
+.hero-title {
+  font-family: "Fraunces", serif;
+  font-weight: 400;
+  font-size: clamp(40px, 7vw, 68px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+.hero-title em { color: var(--accent); font-style: italic; }
+.hero-sub {
+  font-size: 21px;
+  color: var(--ink-soft);
+  max-width: 520px;
+  margin: 0 auto 36px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: "Fraunces", serif;
+  font-size: 17px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); box-shadow: var(--shadow); }
+.btn-ghost { background: transparent; color: var(--ink-soft); border-color: var(--line); }
+.btn-ghost:hover { background: var(--paper-2); color: var(--ink); }
+.btn-lg { font-size: 20px; padding: 14px 30px; }
+.btn-block { width: 100%; }
+.btn-small { font-size: 14px; padding: 6px 12px; }
+.btn-danger { background: transparent; color: var(--accent); border-color: var(--accent-soft); }
+.btn-danger:hover { background: var(--accent-soft); }
+
+/* ---------- Auth ---------- */
+.auth-card {
+  max-width: 420px;
+  margin: 40px auto;
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: var(--shadow);
+}
+.auth-tabs { display: flex; gap: 4px; padding: 8px; }
+.auth-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-family: "Fraunces", serif;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.auth-tab.active { background: var(--accent-soft); color: var(--accent-dark); }
+.auth-form { padding: 16px 24px 28px; }
+
+/* ---------- Fields ---------- */
+.field { margin-bottom: 16px; }
+.field-row { display: flex; gap: 16px; }
+.field-row .field { flex: 1; }
+.field label {
+  display: block;
+  font-family: "Fraunces", serif;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.optional { color: var(--ink-soft); font-weight: 400; font-size: 13px; }
+.field input, .field textarea, .search-input {
+  width: 100%;
+  font-family: "Newsreader", serif;
+  font-size: 17px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field input:focus, .field textarea:focus, .search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.field textarea { resize: vertical; }
+.auth-error { color: var(--accent-dark); font-size: 15px; min-height: 20px; margin-bottom: 8px; }
+.save-note { margin-left: 12px; font-size: 15px; color: var(--ok); }
+
+/* ---------- Browse / directory ---------- */
+.section-title {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 34px;
+  letter-spacing: -0.01em;
+}
+.browse-head { margin-bottom: 12px; }
+.search-wrap { margin-top: 18px; }
+.search-input { font-size: 18px; padding: 14px 18px; }
+.results-meta { color: var(--ink-soft); font-size: 15px; margin-bottom: 20px; min-height: 22px; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.profile-card {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.profile-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: var(--accent-soft);
+}
+.card-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Fraunces", serif;
+  font-weight: 600;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.card-name { font-family: "Fraunces", serif; font-weight: 500; font-size: 20px; line-height: 1.1; }
+.card-location { color: var(--ink-soft); font-size: 14px; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.skill-tag {
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 14px;
+  padding: 4px 11px;
+  border-radius: 20px;
+}
+.skill-tag.match { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-dark); }
+
+.empty-state {
+  text-align: center;
+  color: var(--ink-soft);
+  padding: 60px 20px;
+  font-size: 19px;
+  grid-column: 1 / -1;
+}
+
+/* ---------- My profile ---------- */
+.profile-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.profile-edit-card {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px;
+  margin-bottom: 22px;
+}
+.profile-edit-card h3 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 22px;
+  margin-bottom: 18px;
+}
+.my-skills-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+.my-skill-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--paper-2);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.my-skill-info strong { font-family: "Fraunces", serif; font-size: 18px; }
+.my-skill-info .meta { color: var(--ink-soft); font-size: 14px; }
+.my-skill-info .desc { font-size: 15px; margin-top: 4px; }
+
+.add-skill-box {
+  border-top: 1px dashed var(--line);
+  padding-top: 22px;
+}
+.add-skill-box h4 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+/* ---------- Single profile view ---------- */
+.view-profile-card {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 36px;
+  margin-top: 18px;
+  box-shadow: var(--shadow);
+}
+.view-head { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
+.view-head .avatar { width: 64px; height: 64px; font-size: 26px; }
+.view-name { font-family: "Fraunces", serif; font-weight: 600; font-size: 30px; }
+.view-location { color: var(--ink-soft); font-size: 17px; }
+.view-bio { font-size: 19px; margin: 18px 0 28px; font-style: italic; color: var(--ink-soft); }
+.view-skill {
+  border-top: 1px solid var(--line);
+  padding: 18px 0;
+}
+.view-skill h4 { font-family: "Fraunces", serif; font-size: 21px; font-weight: 500; }
+.view-skill .exp { color: var(--gold); font-size: 15px; margin: 2px 0 6px; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  text-align: center;
+  padding: 24px;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 560px) {
+  .container { padding: 24px 18px 60px; }
+  .field-row { flex-direction: column; gap: 0; }
+  .site-header { padding: 16px 18px; }
+}
+
+/* ============================================================
+   PHASE 2 — messaging + ratings
+   ============================================================ */
+
+/* ---------- Unread badge ---------- */
+.inbox-btn { position: relative; }
+.unread-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-family: "Newsreader", serif;
+  font-size: 13px;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+/* ---------- Messages layout ---------- */
+.messages-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  min-height: 460px;
+}
+
+.inbox {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.inbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  padding: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+.inbox-item:hover { background: var(--paper-2); }
+.inbox-item.active { background: var(--accent-soft); }
+.inbox-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.inbox-name { font-family: "Fraunces", serif; font-weight: 500; font-size: 17px; }
+.inbox-preview {
+  color: var(--ink-soft);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.avatar-sm { width: 36px; height: 36px; font-size: 15px; }
+
+/* ---------- Conversation thread ---------- */
+.thread {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+}
+.thread-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  font-family: "Fraunces", serif;
+  font-size: 18px;
+}
+.thread-body {
+  flex: 1;
+  padding: 18px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 420px;
+}
+.bubble {
+  max-width: 72%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 16px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+.bubble.mine {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.bubble.theirs {
+  align-self: flex-start;
+  background: var(--paper-2);
+  color: var(--ink);
+  border-bottom-left-radius: 4px;
+}
+.thread-compose {
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  border-top: 1px solid var(--line);
+}
+.thread-compose .search-input { flex: 1; }
+
+/* ---------- Ratings ---------- */
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-soft);
+  font-size: 15px;
+  margin-top: 4px;
+}
+.stars-display { color: var(--gold); letter-spacing: 1px; }
+
+.rating-form {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 20px;
+}
+.rating-form h4 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+.stars-input { display: flex; gap: 4px; margin-bottom: 12px; }
+.star {
+  background: none;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--line);
+  transition: color 0.12s ease, transform 0.12s ease;
+}
+.star:hover { transform: scale(1.15); }
+.star.on { color: var(--gold); }
+.rating-comment {
+  width: 100%;
+  font-family: "Newsreader", serif;
+  font-size: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+  color: var(--ink);
+  resize: vertical;
+  margin-bottom: 12px;
+}
+.rating-comment:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.reviews {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 20px;
+}
+.reviews h4 {
+  font-family: "Fraunces", serif;
+  font-weight: 500;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+.review { margin-bottom: 16px; }
+.review p { margin-top: 2px; font-size: 16px; }
+
+/* ---------- Responsive: stack messages on mobile ---------- */
+@media (max-width: 640px) {
+  .messages-layout { grid-template-columns: 1fr; }
+}
