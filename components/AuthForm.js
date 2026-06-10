@@ -1,20 +1,34 @@
 "use client";
-
+ 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-
+ 
+// Traduce los mensajes de error de Supabase al español.
+function traducirError(msg) {
+  const traducciones = {
+    "User already registered": "Este correo ya está registrado. Intenta iniciar sesión.",
+    "Password should be at least 6 characters": "La contraseña debe tener al menos 6 caracteres.",
+    "Unable to validate email address: invalid format": "El formato del correo no es válido.",
+    "Signup requires a valid password": "Ingresa una contraseña válida.",
+    "Invalid login credentials": "Correo o contraseña incorrectos.",
+    "Email not confirmed": "Debes confirmar tu correo antes de iniciar sesión.",
+    "Too many requests": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+  };
+  return traducciones[msg] || msg;
+}
+ 
 export default function AuthForm({ mode, setMode, onLoggedIn, onSignedUp }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-
+ 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setBusy(true);
-
+ 
     try {
       if (mode === "signup") {
         if (!name.trim()) {
@@ -22,24 +36,24 @@ export default function AuthForm({ mode, setMode, onLoggedIn, onSignedUp }) {
           return;
         }
         const { data, error: signErr } = await supabase.auth.signUp({ email, password });
-        if (signErr) { setError(signErr.message); return; }
-
+        if (signErr) { setError(traducirError(signErr.message)); return; }
+ 
         const { error: pErr } = await supabase
           .from("profiles")
           .insert({ id: data.user.id, name: name.trim() });
-        if (pErr) { setError(pErr.message); return; }
-
+        if (pErr) { setError(traducirError(pErr.message)); return; }
+ 
         await onSignedUp();
       } else {
         const { error: loginErr } = await supabase.auth.signInWithPassword({ email, password });
-        if (loginErr) { setError("Correo o contraseña incorrectos."); return; }
+        if (loginErr) { setError(traducirError(loginErr.message)); return; }
         await onLoggedIn();
       }
     } finally {
       setBusy(false);
     }
   }
-
+ 
   return (
     <section className="auth-card">
       <div className="auth-tabs">
@@ -56,7 +70,7 @@ export default function AuthForm({ mode, setMode, onLoggedIn, onSignedUp }) {
           Registrarse
         </button>
       </div>
-
+ 
       <form className="auth-form" onSubmit={handleSubmit}>
         {mode === "signup" && (
           <div className="field">
@@ -64,7 +78,7 @@ export default function AuthForm({ mode, setMode, onLoggedIn, onSignedUp }) {
             <input
               id="authName"
               type="text"
-              placeholder=" "
+              placeholder="ej. Jackie Mensah"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -100,3 +114,4 @@ export default function AuthForm({ mode, setMode, onLoggedIn, onSignedUp }) {
     </section>
   );
 }
+ 
