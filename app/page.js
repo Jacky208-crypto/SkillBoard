@@ -61,7 +61,9 @@ export default function Home() {
   }, [currentUser]);
  
   // --- Figure out who (if anyone) is logged in ---
-  const loadSession = useCallback(async () => {
+  // cleanOrphan: if true, sign out when auth session exists but no profile row
+  // (guards against stale sessions showing "Hola, allí" on page load)
+  const loadSession = useCallback(async ({ cleanOrphan = false } = {}) => {
     const { data } = await supabase.auth.getUser();
     if (data && data.user) {
       const { data: profile } = await supabase
@@ -69,6 +71,12 @@ export default function Home() {
         .select("*")
         .eq("id", data.user.id)
         .single();
+      if (!profile && cleanOrphan) {
+        await supabase.auth.signOut();
+        setCurrentUser(null);
+        setUnreadCount(0);
+        return;
+      }
       const u = { id: data.user.id, email: data.user.email, ...(profile || {}) };
       setCurrentUser(u);
       loadUnread(u.id);
@@ -81,7 +89,7 @@ export default function Home() {
   // --- On first load ---
   useEffect(() => {
     (async () => {
-      await loadSession();
+      await loadSession({ cleanOrphan: true });
       await loadDirectory();
       setLoading(false);
     })();
