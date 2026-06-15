@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Avatar from "@/components/Avatar";
- 
+import { useLang } from "@/lib/i18n";
+
 export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
+  const { t } = useLang();
   const [name, setName] = useState(currentUser.name || "");
   const [location, setLocation] = useState(currentUser.location || "");
   const [bio, setBio] = useState(currentUser.bio || "");
@@ -36,7 +38,7 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
   async function uploadPhoto(e) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    setPhotoNote("Subiendo…");
+    setPhotoNote(t("profile.uploading"));
  
     // Save under the user's own folder so the storage policy allows it.
     const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
@@ -60,7 +62,7 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
  
     setPhotoUrl(publicUrl);
     setCurrentUser({ ...currentUser, photo_url: publicUrl });
-    setPhotoNote("Foto actualizada ✓");
+    setPhotoNote(t("profile.photoUpdated"));
     setTimeout(() => setPhotoNote(""), 2000);
   }
  
@@ -69,12 +71,12 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
     const { error } = await supabase.from("profiles").update(updates).eq("id", currentUser.id);
     if (error) { setProfileNote(error.message); return; }
     setCurrentUser({ ...currentUser, ...updates });
-    setProfileNote("Guardado ✓");
+    setProfileNote(t("profile.saved"));
     setTimeout(() => setProfileNote(""), 2000);
   }
  
   async function addSkill() {
-    if (!skillName.trim()) { setSkillNote("Ingresa el nombre de la habilidad."); return; }
+    if (!skillName.trim()) { setSkillNote(t("profile.enterSkillName")); return; }
     const { error } = await supabase.from("skills").insert({
       user_id: currentUser.id,
       skill_name: skillName.trim(),
@@ -83,7 +85,7 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
     });
     if (error) { setSkillNote(error.message); return; }
     setSkillName(""); setSkillExp(""); setSkillDesc("");
-    setSkillNote("Agregado ✓");
+    setSkillNote(t("profile.added"));
     setTimeout(() => setSkillNote(""), 2000);
     loadSkills();
   }
@@ -96,17 +98,17 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
   return (
     <section>
       <div className="profile-head">
-        <h2 className="section-title">Mi perfil</h2>
-        <button className="btn btn-ghost" onClick={onBack}>← Volver al tablero</button>
+        <h2 className="section-title">{t("profile.title")}</h2>
+        <button className="btn btn-ghost" onClick={onBack}>{t("profile.back")}</button>
       </div>
- 
+
       <div className="profile-edit-card">
-        <h3>Sobre ti</h3>
+        <h3>{t("profile.aboutYou")}</h3>
         <div className="photo-row">
           <Avatar name={name} photoUrl={photoUrl} className="avatar-lg" />
           <div>
             <button className="btn btn-ghost btn-small" onClick={() => fileRef.current && fileRef.current.click()}>
-              Cambiar foto
+              {t("profile.changePhoto")}
             </button>
             <input
               ref={fileRef}
@@ -120,58 +122,58 @@ export default function MyProfile({ currentUser, setCurrentUser, onBack }) {
         </div>
         <div className="field-row">
           <div className="field">
-            <label>Nombre</label>
+            <label>{t("profile.name")}</label>
             <input value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div className="field">
-            <label>Ubicación</label>
-            <input value={location} placeholder="Ciudad, País" onChange={(e) => setLocation(e.target.value)} />
+            <label>{t("profile.location")}</label>
+            <input value={location} placeholder={t("profile.locationPlaceholder")} onChange={(e) => setLocation(e.target.value)} />
           </div>
         </div>
         <div className="field">
-          <label>Biografía <span className="optional">(opcional)</span></label>
-          <textarea rows={2} value={bio} placeholder="Una oración sobre ti" onChange={(e) => setBio(e.target.value)} />
+          <label>{t("profile.bio")} <span className="optional">{t("profile.optional")}</span></label>
+          <textarea rows={2} value={bio} placeholder={t("profile.bioPlaceholder")} onChange={(e) => setBio(e.target.value)} />
         </div>
-        <button className="btn btn-primary" onClick={saveProfile}>Guardar perfil</button>
+        <button className="btn btn-primary" onClick={saveProfile}>{t("profile.save")}</button>
         <span className="save-note">{profileNote}</span>
       </div>
  
       <div className="profile-edit-card">
-        <h3>Mis habilidades</h3>
+        <h3>{t("profile.mySkills")}</h3>
         <div className="my-skills-list">
           {skills.length === 0 ? (
-            <p className="card-location">Sin habilidades aún — agrega la primera abajo.</p>
+            <p className="card-location">{t("profile.noSkills")}</p>
           ) : (
             skills.map((s) => (
               <div key={s.id} className="my-skill-row">
                 <div className="my-skill-info">
                   <strong>{s.skill_name}</strong>
-                  {s.experience && <div className="meta">{s.experience} de experiencia</div>}
+                  {s.experience && <div className="meta">{t("profile.experienceOf", { exp: s.experience })}</div>}
                   {s.description && <div className="desc">{s.description}</div>}
                 </div>
-                <button className="btn btn-danger btn-small" onClick={() => removeSkill(s.id)}>Eliminar</button>
+                <button className="btn btn-danger btn-small" onClick={() => removeSkill(s.id)}>{t("profile.remove")}</button>
               </div>
             ))
           )}
         </div>
  
         <div className="add-skill-box">
-          <h4>Agregar una habilidad</h4>
+          <h4>{t("profile.addSkill")}</h4>
           <div className="field-row">
             <div className="field">
-              <label>Habilidad</label>
-              <input value={skillName} placeholder="ej. Plomería" onChange={(e) => setSkillName(e.target.value)} />
+              <label>{t("profile.skill")}</label>
+              <input value={skillName} placeholder={t("profile.skillPlaceholder")} onChange={(e) => setSkillName(e.target.value)} />
             </div>
             <div className="field">
-              <label>Experiencia</label>
-              <input value={skillExp} placeholder="ej. 5 años" onChange={(e) => setSkillExp(e.target.value)} />
+              <label>{t("profile.experience")}</label>
+              <input value={skillExp} placeholder={t("profile.experiencePlaceholder")} onChange={(e) => setSkillExp(e.target.value)} />
             </div>
           </div>
           <div className="field">
-            <label>Tu nivel <span className="optional">(opcional)</span></label>
-            <textarea rows={2} value={skillDesc} placeholder="¿Qué te hace bueno en esto?" onChange={(e) => setSkillDesc(e.target.value)} />
+            <label>{t("profile.yourLevel")} <span className="optional">{t("profile.optional")}</span></label>
+            <textarea rows={2} value={skillDesc} placeholder={t("profile.yourLevelPlaceholder")} onChange={(e) => setSkillDesc(e.target.value)} />
           </div>
-          <button className="btn btn-primary" onClick={addSkill}>Agregar habilidad</button>
+          <button className="btn btn-primary" onClick={addSkill}>{t("profile.addSkillBtn")}</button>
           <span className="save-note">{skillNote}</span>
         </div>
       </div>

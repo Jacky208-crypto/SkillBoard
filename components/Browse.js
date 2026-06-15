@@ -2,8 +2,10 @@
  
 import { useState } from "react";
 import Avatar from "@/components/Avatar";
- 
+import { useLang } from "@/lib/i18n";
+
 export default function Browse({ profiles, onOpenProfile }) {
+  const { t } = useLang();
   const [query, setQuery] = useState("");
   const [place, setPlace] = useState("");
   const [sortBy, setSortBy] = useState("recent"); // "recent" | "rating"
@@ -35,8 +37,8 @@ export default function Browse({ profiles, onOpenProfile }) {
  
   const meta =
     q || loc
-      ? `${list.length} ${list.length === 1 ? "resultado" : "resultados"}`
-      : `${list.length} ${list.length === 1 ? "persona" : "personas"} en el tablero`;
+      ? t(list.length === 1 ? "browse.resultsOne" : "browse.resultsMany", { count: list.length })
+      : t(list.length === 1 ? "browse.peopleOne" : "browse.peopleMany", { count: list.length });
  
   function stars(avg) {
     const rounded = Math.round(avg);
@@ -46,12 +48,12 @@ export default function Browse({ profiles, onOpenProfile }) {
   return (
     <section>
       <div className="browse-head">
-        <h2 className="section-title">El tablero</h2>
+        <h2 className="section-title">{t("browse.title")}</h2>
         <div className="search-wrap">
           <input
             type="text"
             className="search-input"
-            placeholder="Busca una habilidad o nombre — ej. plomería, jardinería…"
+            placeholder={t("browse.searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -59,7 +61,7 @@ export default function Browse({ profiles, onOpenProfile }) {
             <input
               type="text"
               className="search-input"
-              placeholder="Filtrar por ubicación — ej. Ciudad de Panamá"
+              placeholder={t("browse.locationPlaceholder")}
               value={place}
               onChange={(e) => setPlace(e.target.value)}
             />
@@ -68,8 +70,8 @@ export default function Browse({ profiles, onOpenProfile }) {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
-              <option value="recent">Más recientes</option>
-              <option value="rating">Mejor calificados</option>
+              <option value="recent">{t("browse.sortRecent")}</option>
+              <option value="rating">{t("browse.sortRating")}</option>
             </select>
           </div>
         </div>
@@ -80,9 +82,7 @@ export default function Browse({ profiles, onOpenProfile }) {
       <div className="card-grid">
         {list.length === 0 ? (
           <p className="empty-state">
-            {q || loc
-              ? "Nadie coincide con tu búsqueda — intenta con otras palabras."
-              : "El tablero está vacío. ¡Regístrate y agrega la primera habilidad!"}
+            {q || loc ? t("browse.noMatch") : t("browse.empty")}
           </p>
         ) : (
           list.map((p) => (

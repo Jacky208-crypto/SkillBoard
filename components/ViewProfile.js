@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Avatar from "@/components/Avatar";
 import RatingForm from "@/components/RatingForm";
- 
+import { useLang } from "@/lib/i18n";
+
 export default function ViewProfile({ profile, currentUser, onBack, onMessage }) {
+  const { t } = useLang();
   const [ratings, setRatings] = useState([]);
  
   const loadRatings = useCallback(async () => {
@@ -43,7 +45,7 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
  
   return (
     <section>
-      <button className="btn btn-ghost" onClick={onBack}>← Volver al tablero</button>
+      <button className="btn btn-ghost" onClick={onBack}>{t("view.back")}</button>
       <div className="view-profile-card">
         <div className="view-head">
           <Avatar name={profile.name} photoUrl={profile.photo_url} />
@@ -53,7 +55,7 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
             {average && (
               <div className="rating-summary">
                 <span className="stars-display">{stars(Math.round(average))}</span>
-                {average} · {count} {count === 1 ? "calificación" : "calificaciones"}
+                {average} · {t(count === 1 ? "view.ratingOne" : "view.ratingMany", { count })}
               </div>
             )}
           </div>
@@ -62,19 +64,19 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
         {/* Message button — only when logged in and not your own profile */}
         {currentUser && !isOwnProfile && (
           <button className="btn btn-primary" onClick={() => onMessage(profile.id)}>
-            Enviar mensaje
+            {t("view.sendMessage")}
           </button>
         )}
  
         {profile.bio && <p className="view-bio">&ldquo;{profile.bio}&rdquo;</p>}
  
         {(profile.skills || []).length === 0 ? (
-          <p className="view-location">Sin habilidades listadas aún.</p>
+          <p className="view-location">{t("view.noSkills")}</p>
         ) : (
           profile.skills.map((s) => (
             <div key={s.id} className="view-skill">
               <h4>{s.skill_name}</h4>
-              {s.experience && <div className="exp">{s.experience} de experiencia</div>}
+              {s.experience && <div className="exp">{t("view.experienceOf", { exp: s.experience })}</div>}
               {s.description && <p>{s.description}</p>}
             </div>
           ))
@@ -93,7 +95,7 @@ export default function ViewProfile({ profile, currentUser, onBack, onMessage })
         {/* Reviews list */}
         {reviewsWithComment.length > 0 && (
           <div className="reviews">
-            <h4>Reseñas</h4>
+            <h4>{t("view.reviews")}</h4>
             {reviewsWithComment.map((r) => (
               <div key={r.id} className="review">
                 <span className="stars-display">{stars(r.score)}</span>

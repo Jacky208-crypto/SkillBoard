@@ -63,6 +63,15 @@ body {
 .header-actions { display: flex; align-items: center; gap: 12px; }
 .header-greeting { color: var(--ink-soft); font-size: 16px; }
 
+/* Language toggle */
+.lang-toggle {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.lang-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
 /* ---------- Layout ---------- */
 .container {
   width: 100%;

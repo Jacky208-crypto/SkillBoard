@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { initials } from "@/lib/helpers";
+import { useLang } from "@/lib/i18n";
 
 export default function Messages({ currentUser, profiles, initialPartnerId, onBack, onUnreadChange }) {
+  const { t } = useLang();
   const [partnerId, setPartnerId] = useState(initialPartnerId || null);
   const [conversations, setConversations] = useState([]);
   const [thread, setThread] = useState([]);
@@ -13,8 +15,8 @@ export default function Messages({ currentUser, profiles, initialPartnerId, onBa
 
   // Look up a person's name/details from the profiles we already loaded.
   const profileOf = useCallback(
-    (id) => profiles.find((p) => p.id === id) || { id, name: "Usuario" },
-    [profiles]
+    (id) => profiles.find((p) => p.id === id) || { id, name: t("messages.userFallback") },
+    [profiles, t]
   );
 
   // ---------- Build the inbox (list of people you've talked to) ----------
@@ -141,8 +143,8 @@ export default function Messages({ currentUser, profiles, initialPartnerId, onBa
   return (
     <section>
       <div className="profile-head">
-        <h2 className="section-title">Mensajes</h2>
-        <button className="btn btn-ghost" onClick={onBack}>← Volver al tablero</button>
+        <h2 className="section-title">{t("messages.title")}</h2>
+        <button className="btn btn-ghost" onClick={onBack}>{t("messages.back")}</button>
       </div>
 
       <div className="messages-layout">
@@ -150,7 +152,7 @@ export default function Messages({ currentUser, profiles, initialPartnerId, onBa
         <aside className="inbox">
           {conversations.length === 0 ? (
             <p className="card-location" style={{ padding: "12px" }}>
-              Sin conversaciones aún.
+              {t("messages.noConversations")}
             </p>
           ) : (
             conversations.map((c) => {
@@ -176,7 +178,7 @@ export default function Messages({ currentUser, profiles, initialPartnerId, onBa
         {/* Conversation thread */}
         <div className="thread">
           {!partnerId ? (
-            <p className="empty-state">Elige una conversación para empezar.</p>
+            <p className="empty-state">{t("messages.choosePrompt")}</p>
           ) : (
             <>
               <div className="thread-head">
@@ -187,7 +189,7 @@ export default function Messages({ currentUser, profiles, initialPartnerId, onBa
               <div className="thread-body">
                 {thread.length === 0 ? (
                   <p className="card-location" style={{ textAlign: "center", marginTop: "20px" }}>
-                    Aún no hay mensajes. ¡Escribe el primero!
+                    {t("messages.noMessages")}
                   </p>
                 ) : (
                   thread.map((m) => (
@@ -206,12 +208,12 @@ export default function Messages({ currentUser, profiles, initialPartnerId, onBa
                 <input
                   type="text"
                   className="search-input"
-                  placeholder="Escribe un mensaje…"
+                  placeholder={t("messages.composePlaceholder")}
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={handleKeyDown}
                 />
-                <button className="btn btn-primary" onClick={send}>Enviar</button>
+                <button className="btn btn-primary" onClick={send}>{t("messages.send")}</button>
               </div>
             </>
           )}

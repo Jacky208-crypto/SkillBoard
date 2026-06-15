@@ -8,8 +8,10 @@ import Browse from "@/components/Browse";
 import MyProfile from "@/components/MyProfile";
 import ViewProfile from "@/components/ViewProfile";
 import Messages from "@/components/Messages";
- 
+import { useLang } from "@/lib/i18n";
+
 export default function Home() {
+  const { t } = useLang();
   // Which screen: "browse" | "auth" | "profile" | "viewProfile" | "messages"
   const [view, setView] = useState("browse");
   const [authMode, setAuthMode] = useState("login");
@@ -156,7 +158,7 @@ export default function Home() {
  
       <main className="container">
         {loading ? (
-          <p className="empty-state">Cargando…</p>
+          <p className="empty-state">{t("app.loading")}</p>
         ) : view === "auth" ? (
           <AuthForm
             mode={authMode}
