@@ -18,7 +18,7 @@ export default function Header({
     <header className="site-header">
       <div className="brand" onClick={onBrand}>
         <span className="brand-mark">✦</span>
-        <span className="brand-name">SkillBoard</span>
+        <span className="brand-name">Red de Vecinos</span>
       </div>
       <nav className="header-actions">
         <button

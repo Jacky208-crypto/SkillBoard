@@ -2,7 +2,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n";
 
 export const metadata = {
-  title: "SkillBoard — encuentra personas buenas en algo",
+  title: "Red de Vecinos — encuentra personas buenas en algo",
   description: "Un directorio de personas y en qué son mejores.",
 };
 
