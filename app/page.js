@@ -63,21 +63,26 @@ export default function Home() {
   }, [currentUser]);
  
   // --- Figure out who (if anyone) is logged in ---
-  // cleanOrphan: if true, sign out when auth session exists but no profile row
-  // (guards against stale sessions showing "Hola, allí" on page load)
-  const loadSession = useCallback(async ({ cleanOrphan = false } = {}) => {
+  const loadSession = useCallback(async () => {
     const { data } = await supabase.auth.getUser();
     if (data && data.user) {
-      const { data: profile } = await supabase
+      let { data: profile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", data.user.id)
-        .single();
-      if (!profile && cleanOrphan) {
-        await supabase.auth.signOut();
-        setCurrentUser(null);
-        setUnreadCount(0);
-        return;
+        .maybeSingle();
+      // Auth user exists but has no profile row (e.g. profile insert failed
+      // or the row was deleted): repair it instead of signing them out.
+      if (!profile) {
+        const fallbackName =
+          (data.user.user_metadata && data.user.user_metadata.name) ||
+          (data.user.email || "").split("@")[0];
+        const { data: created } = await supabase
+          .from("profiles")
+          .upsert({ id: data.user.id, name: fallbackName })
+          .select()
+          .single();
+        profile = created;
       }
       const u = { id: data.user.id, email: data.user.email, ...(profile || {}) };
       setCurrentUser(u);
@@ -91,7 +96,7 @@ export default function Home() {
   // --- On first load ---
   useEffect(() => {
     (async () => {
-      await loadSession({ cleanOrphan: true });
+      await loadSession();
       await loadDirectory();
       setLoading(false);
     })();

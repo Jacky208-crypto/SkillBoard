@@ -28,13 +28,22 @@ export default function AuthForm({ mode, setMode, onLoggedIn, onSignedUp }) {
           setError(t("auth.enterName"));
           return;
         }
-        const { data, error: signErr } = await supabase.auth.signUp({ email, password });
+        // The name travels as user metadata so the DB trigger (schema.sql)
+        // can create the profile row even if the client step below fails.
+        const { data, error: signErr } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { name: name.trim() } },
+        });
         if (signErr) { setError(traducirError(signErr.message)); return; }
  
-        const { error: pErr } = await supabase
-          .from("profiles")
-          .insert({ id: data.user.id, name: name.trim() });
-        if (pErr) { setError(traducirError(pErr.message)); return; }
+        // Upsert (not insert): the trigger may already have created the row.
+        if (data.session) {
+          const { error: pErr } = await supabase
+            .from("profiles")
+            .upsert({ id: data.user.id, name: name.trim() });
+          if (pErr) { setError(traducirError(pErr.message)); return; }
+        }
  
         await onSignedUp();
       } else {
